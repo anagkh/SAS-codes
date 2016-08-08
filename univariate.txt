@@ -1,0 +1,28 @@
+/*proc univariate*/
+
+proc univariate data=Training.data2014;
+var PD1_Probability;
+output out=Training.EstPD2014
+median = medianPD
+mean = meanPD
+min = minPD
+max = maxPD
+pctlpre = PercPD
+pctlpts = 2.5 97.5;
+run;
+
+proc sort data=Training.data2014;
+by grade;
+run;
+
+proc univariate data=Training.data2014;
+var PD1_Probability;
+output out=Training.EstPD2014_grade
+median = medianPD
+mean = meanPD
+min = minPD
+max = maxPD
+pctlpre = PercPD
+pctlpts = 2.5 97.5;
+by grade;
+run;

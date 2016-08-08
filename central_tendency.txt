@@ -1,0 +1,31 @@
+/*CT*/
+
+proc means data=Training.data2012;
+output out=Training.val_stats_binary
+sum(default_flag)=defaults_val;
+run;
+
+data Training.all_stats_binary;
+set Training.val_stats_binary;
+average_def_val=defaults_val/_freq_;
+variance_val=(average_def_val*(1-average_def_val))/_freq_;
+freq_dev=200000;
+defaults_dev=12000;
+average_def_dev=0.06;
+variance_dev= 0.000000282;
+sqrt1=sqrt(defaults_dev*(freq_dev-defaults_dev)/(freq_dev**3));
+prob1=probit(0.95);
+prob2=probit(0.99);
+_95_crit_value=sqrt1*prob1+defaults_dev/freq_dev;
+_99_crit_value=sqrt1*prob2+defaults_dev/freq_dev;
+if average_def_val>_95_crit_value then Test_result_K95="CT_underestimated";
+else Test_result_K95="CT_correct";
+if average_def_val>_99_crit_value then Test_result_K99="CT_underestimated";
+else Test_result_K99="CT_correct";
+
+IF Test_result_K95="CT_correct" then Test_RAG_status="G";
+ELSE do;
+    if Test_result_K99 ="CT_correct" THEN Test_RAG_status="A";
+     ELSE Test_RAG_status="R";
+    END;
+RUN;

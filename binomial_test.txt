@@ -1,0 +1,33 @@
+/*Binomial Test*/
+
+PROC SUMMARY DATA =Training.Data2012 nway missing; 
+OUTPUT OUT =Training.Binomial_A_test 
+sum (default_flag)=Observed_defaults 
+mean (PD1_Probability)=mean_Predicted_PD;
+class Grade;
+var default_flag PD1_Probability;
+run;
+
+
+data Training.Binomial_A_test;
+set Training.Binomial_A_test;
+Number_of_obligors =_FREQ_;
+DROP _FREQ_;
+Observed_PD=Observed_defaults/Number_of_obligors;
+Expected_PD=mean_Predicted_PD*100;
+DROP mean_Predicted_PD;
+Observed_PD=Observed_PD*100;
+DROP _TYPE_;
+run;
+
+data Training.Binomial_B;
+set Training.Binomial_A_test;
+	K95 = round((Expected_PD / 100 * Number_of_obligors) + quantile('NORMAL',0.95)*sqrt((Expected_PD / 100 
+		* Number_of_obligors)*(1-Expected_PD/100)),0.1);
+	K99 = round((Expected_PD / 100 * Number_of_obligors) + quantile('NORMAL',0.99)*sqrt((Expected_PD / 100 
+		* Number_of_obligors)*(1-Expected_PD/100)),0.1);
+	if K95 < Observed_defaults then Binomial_Test_Results_K95 = 'PD Underestimated';
+	else Binomial_Test_Results_K95 = 'PD Correct';
+	if K99 < Observed_defaults then Binomial_Test_Results_K99 = 'PD Underestimated';
+	else Binomial_Test_Results_K99 = 'PD Correct';
+run;

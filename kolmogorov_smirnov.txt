@@ -1,0 +1,8 @@
+/*KS*/
+
+proc npar1way data=Training.Data2012 edf;
+class default_flag;
+var PD1_Score;
+output out = Training.KS_Statistic edf;
+title 'KS Test';
+run;

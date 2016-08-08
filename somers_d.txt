@@ -1,0 +1,13 @@
+/*Somers' D*/
+
+ods output SomersDCR=Training.TestSomers ;
+proc freq data= Training.Data2012;
+tables default_flag * PD1_Score  / alpha= 0.01;
+test smdcr;
+run;
+ods output close;
+
+data Training.testSomers;
+set Training.testSomers (rename= (label1=Label cValue1= Value));
+keep Label Value;
+run;

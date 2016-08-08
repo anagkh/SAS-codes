@@ -1,0 +1,26 @@
+/*Migration Matrices*/
+
+proc sort data=Training.Data2011;
+by ID;
+run;
+
+proc sort data=Training.Data2012;
+by ID;
+run;
+
+data Training.Merged_AB;
+merge Training.Data2011
+(keep=ID Grade 
+rename=Grade=Old_Rating) 
+Training.Data2012
+(keep=ID Grade 
+rename=Grade=New_Rating);
+by ID;
+run;
+
+ods html;
+proc freq data=Training.Merged_AB;
+tables Old_Rating*New_Rating /
+nocol norow ;
+run;
+ods html close;

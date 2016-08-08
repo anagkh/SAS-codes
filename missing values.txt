@@ -1,0 +1,53 @@
+/*DATA QUALITY*/
+
+/*Missing*/
+
+proc means data=Training.data2014;
+output out= Training.Missing_EAD ;
+var  EAD_observed2;
+run;
+
+proc means data=Training.data2014;
+output out= Training.Missing_EAD1  
+n (EAD_observed2) = ValidEAD 
+min (EAD_observed2) = minEAD 
+max (EAD_observed2) = maxEAD 
+mean (EAD_observed2) = meanEAD
+STD (EAD_observed2) = stdEAD
+P5=Low5EAD
+P95=High5EAD;
+var  EAD_observed2;
+run;
+
+/*proc summary data=data2014;*/
+/*output out= Missing_EAD2 ;*/
+/*var  EAD_estimated2;*/
+/*run;*/
+
+/*Duplicates */
+
+proc summary data=Training.data2014 nway missing;
+output out=Training.Count_duplicate_id ;
+class id;
+run;
+
+proc freq; table _freq_; run;
+
+proc summary data=Training.data2014 nway missing;
+output out=Training.Count_duplicate_Date ;
+class date;
+run;
+proc freq; table _freq_; run;
+
+/*Duplicates wiht proc sort*/
+data Data_Unique;
+set Training.Data2014;
+run;
+
+proc sort data=Data_Unique nodupkey dupout=Training.Data_duplicate1; 
+  by ID  ; 
+run;
+
+proc sort data=Data_Unique nodupkey dupout=Training.Data_duplicate2; 
+  by date  ; 
+run;

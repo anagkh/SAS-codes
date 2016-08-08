@@ -1,0 +1,14 @@
+/*Correlation*/
+
+proc corr  data=Training.data2014 outp=Training.Correlations;
+var default_flag PD1_Factor_1_score PD1_Factor_2_score PD1_Factor_3_score;
+run;
+
+
+/*Regression*/
+
+proc logistic data=Training.data2014 OUTEST=temp_estimates descending;
+model default_Flag = PD1_Factor_1_continuous/
+	SELECTION=stepwise OUTROC=temp_ROC corrb details rsquare slentry=.050 slstay=.050 ; 
+output out=temp_dummies  PREDPROBS=Individual  ; 
+run;quit;

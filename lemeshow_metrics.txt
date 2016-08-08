@@ -1,0 +1,30 @@
+/*Lemeshow*/
+
+proc summary data = training.Data2012 nway missing;
+output out= Training.Lemeshow_
+sum(default_Flag)=Observed_defaults
+mean(PD1_Probability)=Expected_PD;
+class Grade; run;
+
+data  training.Lemeshow_ ;
+set training.Lemeshow_ ;
+Number_of_obligors=_Freq_;
+Expected_defaults= Expected_PD * Number_of_obligors;
+chi_test= (( Observed_defaults - Expected_defaults) **2) / ( Expected_defaults * (1 - Expected_PD ));
+check_gt1= (Expected_defaults>=1) ;
+check_gt5= (Expected_defaults>=5) ;
+run;
+
+proc summary data=training.Lemeshow_ nway missing;
+output out=training.Lemeshow_results_
+sum(Chi_test) = Lemeshow_value
+sum(check_gt1) = Total_check_gt1
+sum(check_gt5) = Total_check_gt5 ;
+var Chi_test check_gt1 check_gt5;  
+run;
+
+data training.Lemeshow_results_;
+set training.Lemeshow_results_	;
+Rate_num = _FREQ_;
+P_value= 1- probchi (Lemeshow_value, Rate_num-1);
+run;
